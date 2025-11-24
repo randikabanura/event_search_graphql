@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -87,12 +86,12 @@ public class Controller {
     }
 
     @PostMapping("/events_by_category")
-    public HashMap<String, Long> getCountByCategory(@RequestBody CountByCategoryRequest countByCategoryRequest) throws IOException {
+    public EventByCategoryDTO getCountByCategory(@RequestBody CountByCategoryRequest countByCategoryRequest) throws IOException {
         return statPresentation.getCountByCategory(countByCategoryRequest.getFilters(), countByCategoryRequest.getTimeRange());
     }
 
     @GetMapping("/events_by_category")
-    public HashMap<String, Long> getCountByCategory(@RequestParam(value = "filters", required = false) String filters, @RequestParam(value = "timeRange", required = false) String timeRange) throws IOException {
+    public EventByCategoryDTO getCountByCategory(@RequestParam(value = "filters", required = false) String filters, @RequestParam(value = "timeRange", required = false) String timeRange) throws IOException {
         return statPresentation.getCountByCategory(this.map(filters), this.setTimeRange(timeRange));
     }
 

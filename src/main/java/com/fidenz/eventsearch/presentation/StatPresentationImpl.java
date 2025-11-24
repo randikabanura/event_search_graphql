@@ -2,6 +2,7 @@ package com.fidenz.eventsearch.presentation;
 
 import com.fidenz.eventsearch.dto.*;
 import com.fidenz.eventsearch.mapper.AverageCounterMapper;
+import com.fidenz.eventsearch.mapper.EventByCategoryMapper;
 import com.fidenz.eventsearch.mapper.EventTimeRangeMapper;
 import com.fidenz.eventsearch.mapper.GenericCounterMapper;
 import com.fidenz.eventsearch.service.StatServiceInterface;
@@ -9,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 @Component
@@ -33,8 +33,8 @@ public class StatPresentationImpl implements StatPresentationInterface{
     }
 
     @Override
-    public HashMap<String, Long> getCountByCategory(List<FilterDTO> filters, TimeRangeDTO timeRangeDTO) throws IOException {
-        return this.statService.findCountByCategory(filters, timeRangeDTO);
+    public EventByCategoryDTO getCountByCategory(List<FilterDTO> filters, TimeRangeDTO timeRangeDTO) throws IOException {
+        return EventByCategoryMapper.INSTANCE.eventByCategoryToEEventByCategoryDTO(this.statService.findCountByCategory(filters, timeRangeDTO));
     }
 
     @Override

@@ -1,11 +1,9 @@
 package com.fidenz.eventsearch.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fidenz.eventsearch.dto.*;
-import com.fidenz.eventsearch.entity.AverageCounter;
-import com.fidenz.eventsearch.entity.EventDetail;
-import com.fidenz.eventsearch.entity.EventTimeRange;
-import com.fidenz.eventsearch.entity.GenericCounter;
+import com.fidenz.eventsearch.dto.FilterDTO;
+import com.fidenz.eventsearch.dto.TimeRangeDTO;
+import com.fidenz.eventsearch.entity.*;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequest;
@@ -34,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -160,7 +157,7 @@ public class StatServiceImpl implements StatServiceInterface {
     }
 
     @Override
-    public HashMap<String, Long> findCountByCategory(List<FilterDTO> filters, TimeRangeDTO timeRangeDTO) throws IOException {
+    public EventByCategory findCountByCategory(List<FilterDTO> filters, TimeRangeDTO timeRangeDTO) throws IOException {
         TermsAggregationBuilder aggregationBuilderCamera = AggregationBuilders.terms("cameras").field("Event.Params.DeviceName.keyword").size(100000000).minDocCount(1);
 
         SearchRequest searchRequest = new SearchRequest();
@@ -177,12 +174,17 @@ public class StatServiceImpl implements StatServiceInterface {
         SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
         Terms camera = searchResponse.getAggregations().get("cameras");
 
-        HashMap<String, Long> cameraListCount = new HashMap<>();
+        EventByCategory cameraListCount = new EventByCategory();
+        List<EventCounter> eventCounterList = new ArrayList<EventCounter>();
 
         for (final Terms.Bucket entry : camera.getBuckets()) {
-            cameraListCount.put(entry.getKeyAsString(), entry.getDocCount());
+            EventCounter eventCounter = new EventCounter();
+            eventCounter.setCameraName(entry.getKeyAsString());
+            eventCounter.setCount(entry.getDocCount());
+            eventCounterList.add(eventCounter);
         }
 
+        cameraListCount.setEventCounters(eventCounterList);
         return cameraListCount;
     }
 
@@ -251,6 +253,7 @@ public class StatServiceImpl implements StatServiceInterface {
         if (filters == null) {
             return;
         }
+
         filters.stream().collect(Collectors.groupingBy(FilterDTO::getKey)).forEach((key, values) -> {
             BoolQueryBuilder bool = QueryBuilders.boolQuery();
             values.forEach(value -> bool.should(QueryBuilders.matchQuery(key, value.getValues())));

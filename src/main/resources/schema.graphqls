@@ -1,0 +1,75 @@
+type Query {
+    findAverages(filters: [Filter]): AverageCounter
+    findCounter(filters: [Filter], timeRange: TimeRange): GenericCounter
+    findCameras(filters: [Filter], timeRange: TimeRange): [String]!
+    findCountByCategory(filters: [Filter], timeRange: TimeRange): EventByCategory
+    findEventTimeRange(eventStart: String!, eventEnd: String!, filters: [Filter], timeRange: TimeRange): EventTimeRange
+    findAll(first: Int = 25, offset: Int = 0): [EventDetail]!
+    eventDetailById(id: ID): EventDetail
+    search(query: String!, first: Int = 25, offset: Int = 0,  filters: [Filter], timeRange: TimeRange): [EventDetail]!
+}
+
+input Filter{
+    key: String!
+    values: String!
+}
+
+input TimeRange {
+    from: String
+    to: String
+}
+
+type EventByCategory {
+    EventCounters: [EventCounter]!
+}
+
+type EventCounter {
+    CameraName: String
+    Count: Int
+}
+
+type EventTimeRange {
+    From: String
+    To: String
+    Range: Int
+    StartEvent: EventDetail
+    EndEvent: EventDetail
+}
+
+type EventDetail {
+    id: ID
+    TypeMessage: String
+    Node: Node
+    Agg: Agg
+    Event: Event
+}
+
+type Event {
+    Topic: String
+    Params: String
+}
+
+type Agg {
+    Name: String
+    IPAddress: String
+    Id: String
+}
+
+type Node {
+    Name: String
+    IPAddress: String
+    Plugins: String
+}
+
+type GenericCounter {
+    noOfCameras: Int!
+    noOfEvents: Int!
+    noOfLocations: Int!
+    noOfMotionDetectors: Int!
+}
+
+type AverageCounter {
+    avgForWeek: Float!
+    avgForDay: Float!
+    avgForHour: Float!
+}
